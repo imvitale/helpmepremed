@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help Me Uni — find your path</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16243A; --paper:#FAFAF7; --line:#D9D6CC;
+    --hi:#FFD60A; --open:#1F7A4D; --closed:#C23B33; --muted:#6B7280;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:'Public Sans',sans-serif;font-size:16px;line-height:1.55}
+  a{color:inherit}
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px}
+
+  header{border-bottom:3px solid var(--ink);padding:22px 0 18px}
+  .brand{font-family:'Archivo',sans-serif;font-weight:900;font-stretch:120%;font-size:clamp(26px,4.5vw,38px);letter-spacing:-.5px;cursor:pointer;display:inline-block}
+  .brand .uni{background:var(--hi);padding:0 .18em}
+  .crumbs{margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);min-height:18px}
+  .crumbs button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0}
+  .crumbs span::before{content:" › "}
+
+  main{padding:36px 0 70px}
+  .screen{display:none}
+  .screen.active{display:block;animation:rise .22s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.screen.active{animation:none}}
+
+  h1{font-family:'Archivo',sans-serif;font-weight:800;font-stretch:115%;font-size:clamp(24px,4vw,34px);margin-bottom:6px}
+  .sub{color:var(--muted);margin-bottom:26px;max-width:58ch}
+
+  .bigbtns{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .bigbtn{background:#fff;border:2.5px solid var(--ink);border-radius:14px;padding:26px 22px;text-align:left;cursor:pointer;
+    font-family:inherit;box-shadow:5px 5px 0 var(--line);transition:transform .08s ease, box-shadow .08s ease}
+  .bigbtn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--hi)}
+  .bigbtn:focus-visible{outline:3px solid var(--hi);outline-offset:3px}
+  .bigbtn .k{font-family:'Archivo',sans-serif;font-weight:800;font-size:22px;display:block;margin-bottom:4px}
+  .bigbtn .d{font-size:14px;color:var(--muted)}
+
+  .panel{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:20px 22px;box-shadow:4px 4px 0 var(--line);margin-bottom:16px}
+  .panel h3{font-family:'Archivo',sans-serif;font-weight:800;font-size:18px;margin-bottom:8px}
+  .panel ul{padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+  .code{font-family:'IBM Plex Mono',monospace;font-weight:600;background:var(--hi);padding:1px 6px;border-radius:5px;font-size:.92em;white-space:nowrap}
+  .caution{font-size:13px;background:#FFF7CC;border:1.5px dashed var(--ink);border-radius:8px;padding:10px 12px;margin-top:14px}
+  .back{margin-top:26px;font-family:'IBM Plex Mono',monospace;font-size:13px;background:none;border:2px solid var(--ink);border-radius:99px;padding:8px 18px;cursor:pointer}
+  .back:hover{background:var(--hi)}
+
+  /* Grade 12 checker */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:26px}
+  .chip{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;border:2px solid var(--ink);background:#fff;
+    border-radius:8px;padding:10px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:1px;user-select:none;transition:transform .08s ease}
+  .chip small{font-family:'Public Sans',sans-serif;font-weight:500;font-size:11px;color:var(--muted)}
+  .chip:hover{transform:translateY(-1px)}
+  .chip:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+  .chip[aria-pressed="true"]{background:var(--hi)}
+  .chip[aria-pressed="true"] small{color:var(--ink)}
+  .summary{font-size:14px;color:var(--muted);margin-bottom:16px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+  .card{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:4px 4px 0 var(--line)}
+  .card .uni-name{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+  .card h3{font-family:'Archivo',sans-serif;font-weight:800;font-size:18px;line-height:1.25}
+  .status{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:12px;border-radius:99px;padding:4px 12px;align-self:flex-start}
+  .status.open{background:var(--open);color:#fff}
+  .status.missing{background:var(--closed);color:#fff}
+  .status.neutral{background:var(--line);color:var(--ink)}
+  ul.req{list-style:none;display:flex;flex-direction:column;gap:5px;font-size:14px;padding:0}
+  ul.req li{display:flex;gap:8px;align-items:baseline}
+  ul.req .mark{font-family:'IBM Plex Mono',monospace;font-weight:600;width:1.1em;flex:none}
+  li.have .mark{color:var(--open)} li.need .mark{color:var(--closed)}
+  li.need{font-weight:600}
+  .note{font-size:13px;color:var(--muted)}
+  .src{font-size:12px;color:var(--muted);margin-top:auto;padding-top:6px;border-top:1px solid var(--line)}
+
+  footer{border-top:3px solid var(--ink);padding:20px 0 40px;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand" onclick="go('start')">Help Me <span class="uni">Uni</span></div>
+    <div class="crumbs" id="crumbs"></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- START -->
+  <section class="screen" id="s-start">
+    <h1>What level of education are you in?</h1>
+    <p class="sub">Two taps from here to a plan you can act on. Every requirement we show links to the official university page it came from.</p>
+    <div class="bigbtns">
+      <button class="bigbtn" onclick="go('hs')"><span class="k">High school</span><span class="d">Find the courses that keep university doors open, grade by grade.</span></button>
+      <button class="bigbtn" onclick="go('ug')"><span class="k">Undergraduate</span><span class="d">See what Canadian med schools actually require.</span></button>
+    </div>
+  </section>
+
+  <!-- HS GRADE PICK -->
+  <section class="screen" id="s-hs">
+    <h1>What grade are you in?</h1>
+    <p class="sub">Pick your current grade — we'll show what to do this year.</p>
+    <div class="bigbtns">
+      <button class="bigbtn" onclick="go('g9')"><span class="k">Grade 9</span><span class="d">Build the foundation</span></button>
+      <button class="bigbtn" onclick="go('g10')"><span class="k">Grade 10</span><span class="d">Stay on the academic track</span></button>
+      <button class="bigbtn" onclick="go('g11')"><span class="k">Grade 11</span><span class="d">The year that quietly decides everything</span></button>
+      <button class="bigbtn" onclick="go('g12')"><span class="k">Grade 12</span><span class="d">Check your plan against real requirements</span></button>
+    </div>
+    <button class="back" onclick="go('start')">← Back</button>
+  </section>
+
+  <!-- GRADE 9 -->
+  <section class="screen" id="s-g9">
+    <h1>Grade 9 — keep every door open</h1>
+    <p class="sub">No university looks at Grade 9 marks. Your only job: stay on the course track that leads to Grade 12 U-level courses.</p>
+    <div class="panel">
+      <h3>Take this year</h3>
+      <ul>
+        <li><span class="code">ENG1D</span> English (academic / de-streamed) — starts the chain to ENG4U, required everywhere</li>
+        <li><span class="code">MTH1W</span> Math (de-streamed) — starts the chain to Grade 12 math and calculus</li>
+        <li><span class="code">SNC1W</span> Science — starts the chain to Grade 12 Biology, Chemistry, Physics</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>One habit that pays off later</h3>
+      <ul><li>Pick at least one arts/humanities course you actually like — McMaster Health Sci requires a non-math, non-science Grade 12 course, and it's easier if you've stayed in the habit.</li></ul>
+    </div>
+    <div class="caution">⚠ Course codes reflect Ontario's current curriculum — confirm exact codes with your guidance counselor, as the Ministry occasionally renames them.</div>
+    <button class="back" onclick="go('hs')">← Back to grades</button>
+  </section>
+
+  <!-- GRADE 10 -->
+  <section class="screen" id="s-g10">
+    <h1>Grade 10 — the chain continues</h1>
+    <p class="sub">These three academic courses are the prerequisites for the Grade 11 courses that matter. Dropping to applied level here closes the U-level path.</p>
+    <div class="panel">
+      <h3>Take this year</h3>
+      <ul>
+        <li><span class="code">ENG2D</span> English (academic) → leads to ENG3U → ENG4U</li>
+        <li><span class="code">MPM2D</span> Principles of Mathematics (academic) → leads to MCR3U → MHF4U / MCV4U / MDM4U</li>
+        <li><span class="code">SNC2D</span> Science (academic) → the single gateway to Grade 11 Biology, Chemistry AND Physics</li>
+      </ul>
+    </div>
+    <div class="caution">⚠ Confirm course codes and prerequisites with your guidance counselor — chains can vary slightly by school board.</div>
+    <button class="back" onclick="go('hs')">← Back to grades</button>
+  </section>
+
+  <!-- GRADE 11 -->
+  <section class="screen" id="s-g11">
+    <h1>Grade 11 — the year that quietly decides everything</h1>
+    <p class="sub">Universities mostly look at Grade 12 marks — but every Grade 12 course has a Grade 11 prerequisite. What you pick now determines what you <em>can</em> pick next year.</p>
+    <div class="panel">
+      <h3>To keep all five flagship pre-med programs open next year, take:</h3>
+      <ul>
+        <li><span class="code">ENG3U</span> English → unlocks ENG4U (required by every program)</li>
+        <li><span class="code">SBI3U</span> Biology → unlocks SBI4U (required: McMaster, Western ×2, Queen's)</li>
+        <li><span class="code">SCH3U</span> Chemistry → unlocks SCH4U (required: McMaster, Western Med Sci, Queen's)</li>
+        <li><span class="code">MCR3U</span> Functions → unlocks ALL Grade 12 math, including Calculus</li>
+        <li><span class="code">SPH3U</span> Physics (optional) → unlocks SPH4U, recommended at Western Med Sci</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>The trap to avoid</h3>
+      <ul><li>Skipping <span class="code">MCR3U</span> (Functions) means no Calculus next year — which closes Western Medical Sciences and U of T Life Sciences permanently for direct entry. It's the most door-closing single decision in high school. Tap through to the Grade 12 checker to see it live.</li></ul>
+    </div>
+    <div class="caution">⚠ Confirm prerequisites with your guidance counselor before finalizing your timetable.</div>
+    <button class="back" onclick="go('hs')">← Back to grades</button>
+  </section>
+
+  <!-- GRADE 12 CHECKER -->
+  <section class="screen" id="s-g12">
+    <h1>Grade 12 — check your plan</h1>
+    <p class="sub">Tap the courses you'll have by the end of Grade 12. Each program flips live between open and blocked.</p>
+    <div class="chips" id="chips" role="group" aria-label="Grade 12 course selection"></div>
+    <p class="summary" id="summary"></p>
+    <div class="grid" id="grid"></div>
+    <button class="back" onclick="go('hs')">← Back to grades</button>
+  </section>
+
+  <!-- UNDERGRAD -->
+  <section class="screen" id="s-ug">
+    <h1>Undergraduate — med school requirements</h1>
+    <p class="sub">Canadian med schools differ a lot more than people assume — some require specific courses, some require almost none. We're verifying each school against the official AFMC guide; verified entries appear below as we finish them.</p>
+    <div class="panel">
+      <h3>Western (Schulich School of Medicine), Ontario</h3>
+      <ul>
+        <li>Course prerequisites: none reported — admission is based on GPA, MCAT and the interview, not specific undergrad courses</li>
+        <li>MCAT: required, written within 5 years; your most recent score is used</li>
+      </ul>
+      <div class="caution">⚠ Partially verified from a secondary source — confirm on <a href="https://www.schulich.uwo.ca/medicine/undergraduate/" target="_blank" rel="noopener">schulich.uwo.ca</a> before relying on it.</div>
+    </div>
+    <div class="panel">
+      <h3>The other 17 faculties</h3>
+      <ul>
+        <li>Verification in progress. Until then, the authoritative free source is the <a href="https://www.afmc.ca/wp-content/uploads/2025/05/Admission_Requirements_of_Canadian_Faculties_of_Medicine_2026_v3.pdf" target="_blank" rel="noopener">AFMC 2026 Admissions Requirements Guide</a> — every Canadian faculty of medicine in one PDF: prerequisites, MCAT rules, seats, deadlines.</li>
+      </ul>
+    </div>
+    <button class="back" onclick="go('start')">← Back</button>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    "Open" means your courses cover every published requirement — it does not predict admission; averages and supplementary applications still decide.
+    Requirements change every cycle: always confirm on the linked official page. Data verified 2026-06-11. v0.2.
+  </div>
+</footer>
+
+<script>
+/* ---------- navigation ---------- */
+const TITLES = {start:"Start", hs:"High school", ug:"Undergraduate", g9:"Grade 9", g10:"Grade 10", g11:"Grade 11", g12:"Grade 12"};
+const PARENT  = {hs:"start", ug:"start", g9:"hs", g10:"hs", g11:"hs", g12:"hs"};
+function go(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("s-"+id).classList.add("active");
+  const trail = [];
+  let cur = id;
+  while(cur){ trail.unshift(cur); cur = PARENT[cur]; }
+  document.getElementById("crumbs").innerHTML = trail.map((t,i) =>
+    i===trail.length-1 ? `<span>${TITLES[t]}</span>`.replace("<span>","<span style='color:var(--ink)'>")
+    : (i===0 ? `<button onclick="go('${t}')">${TITLES[t]}</button>` : `<span><button onclick="go('${t}')">${TITLES[t]}</button></span>`)
+  ).join("");
+  window.scrollTo({top:0});
+}
+
+/* ---------- Grade 12 checker (verified data) ---------- */
+const COURSES = [
+  {code:"ENG4U", name:"English"},
+  {code:"SBI4U", name:"Biology"},
+  {code:"SCH4U", name:"Chemistry"},
+  {code:"MHF4U", name:"Adv. Functions"},
+  {code:"MCV4U", name:"Calculus & Vectors"},
+  {code:"MDM4U", name:"Data Management"},
+  {code:"SPH4U", name:"Physics"},
+  {code:"ARTS",  name:"Non-math/sci U/M course"}
+];
+const PROGRAMS = [
+  { uni:"McMaster University", name:"Honours Health Sciences (BHSc)",
+    req:[["ENG4U"],["SBI4U"],["SCH4U"],["MHF4U","MCV4U","MDM4U"],["ARTS"]],
+    labels:{ "MHF4U,MCV4U,MDM4U":"One Grade 12 math (MHF4U / MCV4U / MDM4U)", "ARTS":"One non-math, non-science, non-tech U/M course" },
+    note:"Min 90% in the six courses just to be eligible. Mandatory supplementary application. Grade 11 marks not seen.",
+    src:"future.mcmaster.ca", url:"https://future.mcmaster.ca/programs/health-sciences/" },
+  { uni:"Western University (Schulich)", name:"Medical Sciences (BMSc pathway)",
+    req:[["ENG4U"],["SBI4U"],["SCH4U"],["MCV4U"]], labels:{},
+    rec:"SPH4U recommended",
+    note:"Grades-only admission on best six 4U/M incl. all four prerequisites. Typically high-80s to mid-90s.",
+    src:"schulich.uwo.ca", url:"https://www.schulich.uwo.ca/bmsc/future-students/applying/from-ontario-high-schools.html" },
+  { uni:"Western University", name:"Health Sciences (BHSc)",
+    req:[["ENG4U"],["SBI4U"],["MHF4U","MCV4U","MDM4U"]],
+    labels:{ "MHF4U,MCV4U,MDM4U":"One Grade 12 math (MHF4U / MCV4U / MDM4U)" },
+    rec:"SCH4U strongly advised (required for the Biology stream; essential for med/dent plans)",
+    note:"Admission average guideline: high 80s to low 90s.",
+    src:"welcome.uwo.ca", url:"https://welcome.uwo.ca/what-can-i-study/undergraduate-programs/health-sciences.html" },
+  { uni:"Queen's University", name:"Health Sciences (BHSc, on-campus)",
+    req:[["ENG4U"],["SBI4U"],["SCH4U"],["MHF4U","MCV4U"]],
+    labels:{ "MHF4U,MCV4U":"Advanced Functions or Calculus & Vectors" },
+    note:"Min 80% in ENG4U, 75% cumulative to be considered; anticipated average 90%+. Mandatory supplementary application. (Queen's pages conflict on the math rule — stricter reading shown.)",
+    src:"bhsc.queensu.ca", url:"https://bhsc.queensu.ca/future-students/admission" },
+  { uni:"University of Toronto (St. George)", name:"Life Sciences (Arts & Science)",
+    req:[["ENG4U"],["MCV4U"]], labels:{},
+    rec:"SBI4U and SCH4U strongly advised — many first-year courses and second-year streams require them",
+    note:"Admission to the broad category on your top six 4U/M; you pick a major after Year 1.",
+    src:"artsci.utoronto.ca", url:"https://www.artsci.utoronto.ca/future/ready-apply/admission-requirements" }
+];
+
+const selected = new Set();
+const chipsEl = document.getElementById("chips");
+const gridEl = document.getElementById("grid");
+const summaryEl = document.getElementById("summary");
+
+COURSES.forEach(c => {
+  const b = document.createElement("button");
+  b.className = "chip"; b.setAttribute("aria-pressed","false");
+  b.innerHTML = `${c.code === "ARTS" ? "+1" : c.code}<small>${c.name}</small>`;
+  b.onclick = () => {
+    selected.has(c.code) ? selected.delete(c.code) : selected.add(c.code);
+    b.setAttribute("aria-pressed", selected.has(c.code));
+    renderChecker();
+  };
+  chipsEl.appendChild(b);
+});
+
+function clauseLabel(p, clause){ return p.labels[clause.join(",")] || clause.join(" or "); }
+
+function renderChecker(){
+  const none = selected.size === 0;
+  let openCount = 0;
+  gridEl.innerHTML = "";
+  PROGRAMS.forEach(p => {
+    const missing = p.req.filter(cl => !cl.some(code => selected.has(code)));
+    const open = !none && missing.length === 0;
+    if (open) openCount++;
+    const card = document.createElement("article");
+    card.className = "card";
+    const status = none ? `<span class="status neutral">Select courses above</span>`
+      : open ? `<span class="status open">Open — requirements covered</span>`
+      : `<span class="status missing">Missing ${missing.length} requirement${missing.length>1?"s":""}</span>`;
+    const reqList = p.req.map(cl => {
+      const have = cl.some(code => selected.has(code));
+      const cls = none ? "" : (have ? "have" : "need");
+      const mark = none ? "·" : (have ? "✓" : "✗");
+      return `<li class="${cls}"><span class="mark">${mark}</span><span>${clauseLabel(p, cl)}</span></li>`;
+    }).join("");
+    card.innerHTML = `
+      <div class="uni-name">${p.uni}</div><h3>${p.name}</h3>${status}
+      <ul class="req">${reqList}</ul>
+      ${p.rec ? `<div class="note"><strong>Recommended:</strong> ${p.rec}</div>` : ""}
+      <div class="note">${p.note}</div>
+      <div class="src">Source: <a href="${p.url}" target="_blank" rel="noopener">${p.src}</a> · verified 2026-06-11</div>`;
+    gridEl.appendChild(card);
+  });
+  summaryEl.textContent = none
+    ? "No courses selected yet — every card shows its full requirement list."
+    : `${openCount} of ${PROGRAMS.length} programs open with your current plan.` +
+      (selected.has("MCV4U") ? "" : " Without Calculus & Vectors (MCV4U), Western Medical Sciences and U of T Life Sciences stay closed.");
+}
+
+renderChecker();
+go("start");
+</script>
+</body>
+</html>
