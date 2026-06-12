@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help Me Pre Med: find your path</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:ital,wght@0,400..800;1,400..600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* warm, slightly unexpected palette: oat paper, ink, muted plum + clay */
+    --ink:#2A2622; --paper:#F3EEE3; --card:#FBF8F1; --line:#DAD2C2;
+    --plum:#6E4B63; --plum-soft:#EADFE6; --clay:#B5663F; --clay-soft:#F0E0D3;
+    --open:#4F6F52; --closed:#A8493C; --muted:#7A7166;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:'Hanken Grotesk',sans-serif;font-size:17.5px;line-height:1.6;
+    background-image:radial-gradient(circle at 1px 1px, rgba(42,38,34,.045) 1px, transparent 0);background-size:22px 22px}
+  a{color:var(--plum);text-decoration-thickness:1px;text-underline-offset:2px}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px}
+
+  header{border-bottom:1px solid var(--ink);padding:30px 0 56px}
+  .brandrow{display:flex;align-items:center;gap:13px;cursor:pointer;width:max-content}
+  .logo{width:44px;height:44px;flex:none}
+  .brand{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(26px,4.6vw,40px);letter-spacing:-.8px;line-height:1}
+  .brand .uni{font-style:normal;color:var(--plum);border-bottom:2px solid var(--clay);padding-bottom:1px}
+  .crumbs{margin-top:14px;font-family:'Hanken Grotesk',sans-serif;font-weight:500;font-size:12px;letter-spacing:.02em;color:var(--muted);min-height:16px;overflow-wrap:anywhere;text-transform:lowercase}
+  .crumbs button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0}
+  .crumbs span::before{content:" / "}
+
+  main{padding:56px 0 80px}
+  .screen{display:none}
+  .screen.active{display:block;animation:rise .24s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.screen.active{animation:none}}
+
+  h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(30px,4.8vw,46px);line-height:1.08;letter-spacing:-1px;margin-top:14px;margin-bottom:14px;max-width:18ch}
+  .sub{color:var(--muted);margin-bottom:30px;max-width:56ch;font-size:18px}
+
+  .bigbtns{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+  .bigbtn{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:26px 24px;text-align:left;cursor:pointer;
+    font-family:inherit;position:relative;transition:border-color .15s ease, background .15s ease, transform .12s ease}
+  .bigbtn::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--clay);opacity:0;transition:opacity .15s ease}
+  .bigbtn:hover{border-color:var(--ink);transform:translateY(-2px)}
+  .bigbtn:hover::before{opacity:1}
+  .bigbtn:focus-visible{outline:2px solid var(--plum);outline-offset:3px}
+  .bigbtn .k{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:25px;line-height:1.1;display:block;margin-bottom:5px}
+  .bigbtn .d{font-size:15.5px;color:var(--muted);line-height:1.45}
+  .shortcut{margin-top:20px;width:100%;background:var(--plum-soft);border-color:#cdb8c6}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:22px 24px;margin-bottom:16px}
+  .panel h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:22px;margin-bottom:8px}
+  .panel ul{padding-left:20px;display:flex;flex-direction:column;gap:7px;font-size:16px}
+  .code{font-family:'Hanken Grotesk',sans-serif;font-weight:600;background:var(--clay-soft);color:var(--clay);padding:1px 6px;border-radius:3px;font-size:.82em;white-space:nowrap}
+  .caution{font-size:14.5px;background:var(--plum-soft);border-left:3px solid var(--plum);border-radius:0 3px 3px 0;padding:12px 16px;margin-top:16px;color:#54414e}
+  .linkbtn{font:inherit;background:none;border:none;color:var(--plum);font-weight:500;text-decoration:underline;cursor:pointer;padding:0}
+  .back{margin-top:32px;font-family:'Hanken Grotesk',sans-serif;font-weight:600;font-size:14.5px;letter-spacing:0;color:var(--ink);background:none;border:none;border-bottom:1.5px solid var(--ink);border-radius:0;padding:4px 2px;cursor:pointer;transition:color .15s, border-color .15s}
+  .back:hover{color:var(--clay);border-color:var(--clay)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:28px}
+  .chip{font-family:'Hanken Grotesk',sans-serif;font-weight:500;font-size:13px;border:1px solid var(--line);background:var(--card);
+    border-radius:3px;padding:9px 13px;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:1px;user-select:none;transition:border-color .12s ease, background .12s ease}
+  .chip small{font-family:'Hanken Grotesk',sans-serif;font-weight:500;font-size:10px;color:var(--muted)}
+  .chip:hover{border-color:var(--ink)}
+  .chip:focus-visible{outline:2px solid var(--plum);outline-offset:2px}
+  .chip[aria-pressed="true"]{background:var(--plum);border-color:var(--plum);color:var(--card)}
+  .chip[aria-pressed="true"] small{color:var(--plum-soft)}
+  .summary{font-size:15px;color:var(--muted);margin-bottom:18px;font-style:italic}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:22px;display:flex;flex-direction:column;gap:11px}
+  .card .uni-name{font-family:'Hanken Grotesk',sans-serif;font-size:11px;letter-spacing:.03em;text-transform:uppercase;color:var(--clay)}
+  .card h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:23px;line-height:1.1}
+  .status{font-family:'Hanken Grotesk',sans-serif;font-weight:500;font-size:11px;border-radius:99px;padding:4px 12px;align-self:flex-start;text-transform:uppercase;letter-spacing:.04em}
+  .status.open{background:var(--open);color:#fff}
+  .status.missing{background:var(--closed);color:#fff}
+  .status.neutral{background:var(--line);color:var(--ink)}
+  ul.req{list-style:none;display:flex;flex-direction:column;gap:6px;font-size:15.5px;padding:0}
+  ul.req li{display:flex;gap:9px;align-items:baseline}
+  ul.req .mark{font-family:'Hanken Grotesk',sans-serif;font-weight:600;width:1.1em;flex:none;color:var(--clay)}
+  li.have .mark{color:var(--open)} li.need .mark{color:var(--closed)}
+  li.need{font-weight:500}
+  .note{font-size:14.5px;color:var(--muted);line-height:1.5}
+  .src{font-size:12.5px;color:var(--muted);margin-top:auto;padding-top:8px;border-top:1px solid var(--line)}
+
+  footer{border-top:1px solid var(--ink);margin-top:40px;padding:32px 0 54px;font-size:14px;color:var(--muted)}
+  footer .feedback{margin-top:18px;color:var(--ink);font-weight:500}
+
+  @media (max-width:520px){
+    .wrap{padding:0 16px}
+    body{font-size:16.5px}
+    main{padding:30px 0 56px}
+    header{padding:24px 0 44px}
+    .bigbtns{grid-template-columns:1fr}
+    .bigbtn{padding:20px 18px}
+    .chip{padding:8px 11px}
+    .panel{padding:18px}
+    .logo{width:38px;height:38px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brandrow" onclick="go('start')">
+      <svg class="logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="32,10 58,22 32,34 6,22" fill="#2A2622"/>
+        <path d="M20 28 v10 c0 4 5.5 7 12 7 s12-3 12-7 V28 L32 34 Z" fill="#EADFE6" stroke="#2A2622" stroke-width="2.5"/>
+        <line x1="58" y1="22" x2="58" y2="40" stroke="#2A2622" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="58" cy="44" r="4" fill="#B5663F" stroke="#2A2622" stroke-width="2.5"/>
+        <circle cx="27" cy="21" r="1.8" fill="#6E4B63"/>
+        <circle cx="37" cy="21" r="1.8" fill="#6E4B63"/>
+        <path d="M27 25 q5 3.5 10 0" stroke="#6E4B63" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="brand">Help Me <span class="uni">Pre Med</span></div>
+    </div>
+    <div class="crumbs" id="crumbs"></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- START -->
+  <section class="screen" id="s-start">
+    <h1>Where are you right now?</h1>
+    <p class="sub">A student-built map from where you are now to the program you're aiming at. Every requirement links back to the official page it came from, so you can check it yourself.</p>
+    <div class="bigbtns">
+      <button class="bigbtn" onclick="go('hs')"><span class="k">High school</span><span class="d">Find the courses that keep university doors open, grade by grade.</span></button>
+      <button class="bigbtn" onclick="go('ug')"><span class="k">Undergraduate</span><span class="d">Check yourself against med, dental, pharmacy, physio, PA, optometry, chiro and nursing schools.</span></button>
+    </div>
+    <button class="bigbtn shortcut" onclick="go('premed')"><span class="k">Choosing an undergrad major</span><span class="d">See the common Ontario degrees students take on the way to medicine and the other health professions.</span></button>
+    <button class="bigbtn shortcut" onclick="go('g12')"><span class="k">Try the course checker</span><span class="d">In Grade 12 (or just curious)? Tap your courses, watch program doors open and close live.</span></button>
+  </section>
+
+  <!-- HS GRADE PICK -->
+  <section class="screen" id="s-hs">
+    <h1>What grade are you in?</h1>
+    <p class="sub">Pick your current grade. We'll show what to do this year.</p>
+    <div class="bigbtns">
+      <button class="bigbtn" onclick="go('g9')"><span class="k">Grade 9</span><span class="d">Build the foundation</span></button>
+      <button class="bigbtn" onclick="go('g10')"><span class="k">Grade 10</span><span class="d">Stay on the academic track</span></button>
+      <button class="bigbtn" onclick="go('g11')"><span class="k">Grade 11</span><span class="d">Your Grade 12 options are decided here</span></button>
+      <button class="bigbtn" onclick="go('g12')"><span class="k">Grade 12</span><span class="d">Check your plan against real requirements</span></button>
+    </div>
+    <button class="back" onclick="go('start')">← Back</button>
+  </section>
+
+  <!-- GRADE 9 -->
+  <section class="screen" id="s-g9">
+    <h1>Grade 9: keep every door open</h1>
+    <p class="sub">No university looks at Grade 9 marks. Your only job is to stay on the course track that leads to Grade 12 U-level courses.</p>
+    <div class="panel">
+      <h3>Take this year</h3>
+      <ul>
+        <li><span class="code">ENG1D</span> English, which starts the chain to ENG4U (required everywhere)</li>
+        <li><span class="code">MTH1W</span> Math (de-streamed), which starts the chain to Grade 12 math and calculus</li>
+        <li><span class="code">SNC1W</span> Science, which starts the chain to Grade 12 Biology, Chemistry and Physics</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>One habit that pays off later</h3>
+      <ul><li>Pick at least one arts or humanities course you actually like. McMaster Health Sci requires a non-math, non-science Grade 12 course, and it's easier if you've stayed in the habit.</li></ul>
+    </div>
+    <div class="caution">Course codes reflect Ontario's current curriculum. Confirm exact codes with your guidance counselor, as the Ministry occasionally renames them.</div>
+    <button class="back" onclick="go('hs')">← Back to grades</button>
+  </section>
+
+  <!-- GRADE 10 -->
+  <section class="screen" id="s-g10">
+    <h1>Grade 10: the chain continues</h1>
+    <p class="sub">These three academic courses are the prerequisites for the Grade 11 courses that matter. Dropping to applied level here closes the U-level path.</p>
+    <div class="panel">
+      <h3>Take this year</h3>
+      <ul>
+        <li><span class="code">ENG2D</span> English (academic) → leads to ENG3U → ENG4U</li>
+        <li><span class="code">MPM2D</span> Principles of Mathematics (academic) → leads to MCR3U → MHF4U / MCV4U / MDM4U</li>
+        <li><span class="code">SNC2D</span> Science (academic) → the single gateway to Grade 11 Biology, Chemistry AND Physics</li>
+      </ul>
+    </div>
+    <div class="caution">Confirm course codes and prerequisites with your guidance counselor. Chains can vary slightly by school board.</div>
+    <button class="back" onclick="go('hs')">← Back to grades</button>
+  </section>
+
+  <!-- GRADE 11 -->
+  <section class="screen" id="s-g11">
+    <h1>Grade 11: set up your Grade 12 options</h1>
+    <p class="sub">Universities mostly look at Grade 12 marks, but every Grade 12 course has a Grade 11 prerequisite. What you pick now determines what you <em>can</em> pick next year.</p>
+    <div class="panel">
+      <h3>To keep every flagship health program open next year, take:</h3>
+      <ul>
+        <li><span class="code">ENG3U</span> English → unlocks ENG4U (required by every program)</li>
+        <li><span class="code">SBI3U</span> Biology → unlocks SBI4U (required at McMaster, Western, Queen's and Waterloo Health Sci)</li>
+        <li><span class="code">SCH3U</span> Chemistry → unlocks SCH4U (required at McMaster, Western Med Sci, Queen's and Waterloo Health Sci)</li>
+        <li><span class="code">MCR3U</span> Functions → unlocks ALL Grade 12 math, including Calculus</li>
+        <li><span class="code">SPH3U</span> Physics (optional) → unlocks SPH4U, recommended at Western Med Sci</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>The trap to avoid</h3>
+      <ul><li>Skipping <span class="code">MCR3U</span> (Functions) means no Calculus next year, which closes Western Medical Sciences, U of T Life Sciences and Waterloo Life Sciences for direct entry. It's the most door-closing single decision in high school. Tap through to the Grade 12 checker to see it live.</li></ul>
+    </div>
+    <div class="caution">Confirm prerequisites with your guidance counselor before finalizing your timetable.</div>
+    <button class="back" onclick="go('hs')">← Back to grades</button>
+  </section>
+
+  <!-- GRADE 12 CHECKER -->
+  <section class="screen" id="s-g12">
+    <h1>Grade 12: check your plan</h1>
+    <p class="sub">Tap the courses you'll have by the end of Grade 12. Each program flips live between open and blocked. Nursing is here too, because it's direct entry from high school.</p>
+    <div class="chips" id="chips" role="group" aria-label="Grade 12 course selection"></div>
+    <p class="summary" id="summary"></p>
+    <div class="grid" id="grid"></div>
+    <button class="back" onclick="go('hs')">← Back to grades</button>
+  </section>
+
+  <!-- UNIVERSITY: field chooser -->
+  <section class="screen" id="s-ug">
+    <h1>University: pick a professional path</h1>
+    <p class="sub">Each field is applied to during or after your undergraduate degree, and the required courses differ sharply between them. Pick a field to see every program with its full prerequisite course list.</p>
+    <div class="bigbtns">
+      <button class="bigbtn" onclick="go('med')"><span class="k">Medicine</span><span class="d">All 18 Canadian faculties, grouped by province</span></button>
+      <button class="bigbtn" onclick="openField('dent')"><span class="k">Dentistry</span><span class="d">All 10 Canadian dental schools</span></button>
+      <button class="bigbtn" onclick="openField('physio')"><span class="k">Physiotherapy</span><span class="d">ORPAS, sub-GPA, four prerequisite courses</span></button>
+      <button class="bigbtn" onclick="openField('optom')"><span class="k">Optometry</span><span class="d">OAT or CASPer; Waterloo and Montreal</span></button>
+      <button class="bigbtn" onclick="openField('chiro')"><span class="k">Chiropractic</span><span class="d">Three years undergrad, no required courses</span></button>
+      <button class="bigbtn" onclick="openField('pa')"><span class="k">Physician Assistant</span><span class="d">McMaster and U of T Consortium</span></button>
+      <button class="bigbtn" onclick="openField('pharmacy')"><span class="k">Pharmacy</span><span class="d">All 11 accredited PharmD schools in Canada</span></button>
+      <button class="bigbtn" onclick="openField('nursing')"><span class="k">Accelerated Nursing</span><span class="d">Second-entry BScN for university grads</span></button>
+    </div>
+    <div class="caution" style="margin-top:18px">Looking for direct-entry nursing or any undergraduate program from high school? Those live in the <button class="linkbtn" onclick="go('g12')">Grade 12 course checker</button>.</div>
+    <button class="back" onclick="go('start')">← Back</button>
+  </section>
+
+  <!-- UNIVERSITY: a single field's programs -->
+  <section class="screen" id="s-field">
+    <h1 id="field-title"></h1>
+    <p class="sub" id="field-sub"></p>
+    <div class="grid" id="field-grid"></div>
+    <div class="caution" id="field-note" style="margin-top:18px"></div>
+    <button class="back" onclick="go('ug')">← Back to paths</button>
+  </section>
+
+  <!-- ONTARIO PRE-MED UNDERGRAD PROGRAMS -->
+  <section class="screen" id="s-premed">
+    <h1>Ontario undergrad programs for pre-med</h1>
+    <p class="sub">There is no such thing as a "pre-med major" in Canada. Medical schools accept almost any degree, as long as your grades are strong and you finish their prerequisite courses. These are the science and health degrees Ontario students most often choose. Pick whichever you would enjoy and do well in, since your GPA matters far more than the program name.</p>
+    <div class="caution" style="margin-bottom:24px">This is a directory of common programs, not a ranking. Admission averages, co-op options and course details live on each university's own page and change yearly. Treat this as a starting point for your own research, not a cutoff list.</div>
+    <div id="premed-grid"></div>
+    <button class="back" onclick="go('start')">← Back to start</button>
+  </section>
+
+  <!-- MEDICINE: all 18 faculties -->
+  <section class="screen" id="s-med">
+    <h1>Canadian medical schools</h1>
+    <p class="sub">All 18 faculties of medicine, from the official AFMC 2026 Admissions Requirements Guide. Filter by province, then read each school's GPA, MCAT, CASPer and course prerequisites. Most seats are reserved for in-province residents, so your home province matters.</p>
+    <div class="panel" style="margin-bottom:26px">
+      <h3>Check your courses against prerequisites</h3>
+      <p class="note" style="margin-bottom:12px">Tap the university courses you have taken (or plan to). Most Canadian med schools list <strong>no</strong> required courses, so any degree works for them. A few do require specific courses, and this shows whether yours cover them. Important: covering the courses is not the same as being admitted. Your GPA, MCAT and CASPer decide that.</p>
+      <div class="chips" id="medcourses" role="group" aria-label="Select university courses you have taken"></div>
+      <p class="summary" id="medcoursesummary" style="margin-bottom:0"></p>
+    </div>
+    <div class="chips" id="medfilter" role="group" aria-label="Filter medical schools by province"></div>
+    <div class="chips" id="medtoggles" role="group" aria-label="Filter medical schools by requirement" style="margin-top:-14px"></div>
+    <p class="summary" id="medcount"></p>
+    <div class="grid" id="medgrid"></div>
+    <div class="caution" style="margin-top:18px">Source: AFMC, <a href="https://www.afmc.ca/wp-content/uploads/2025/05/Admission_Requirements_of_Canadian_Faculties_of_Medicine_2026_v3.pdf" target="_blank" rel="noopener">Admission Requirements of Canadian Faculties of Medicine 2026</a>, faculty data as of April 2025. Always confirm on each school's own admissions page before applying, since cutoffs are reset every cycle. Quebec French-language schools (Laval, Montreal, Sherbrooke) and McGill require French or CEGEP study; see their sites. Verified 2026-06-11.</div>
+    <button class="back" onclick="go('ug')">← Back to university</button>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    "Open" means your selections cover every published requirement. It does not predict admission; averages, tests, interviews and supplementary applications still decide.
+    Requirements change every cycle, so always confirm on the linked official page. Data verified 2026-06-11. v1.5.
+    <div class="feedback">Spot an error? Email <a href="mailto:imvitale@uwaterloo.ca">imvitale@uwaterloo.ca</a>. Accuracy is the whole point of this site.</div>
+  </div>
+</footer>
+
+<script>
+/* ---------- navigation ---------- */
+const TITLES = {start:"Start", hs:"High school", ug:"University", g9:"Grade 9", g10:"Grade 10", g11:"Grade 11", g12:"Grade 12", med:"Medical schools", field:"Programs", premed:"Undergrad majors"};
+const PARENT  = {hs:"start", ug:"start", g9:"hs", g10:"hs", g11:"hs", g12:"hs", med:"ug", field:"ug", premed:"start"};
+function renderScreen(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+
+  const target = document.getElementById("s-" + id);
+  if(!target){
+    id = "start";
+  }
+
+  document.getElementById("s-" + id).classList.add("active");
+
+  const trail = [];
+  let cur = id;
+  while(cur){ trail.unshift(cur); cur = PARENT[cur]; }
+
+  document.getElementById("crumbs").innerHTML = trail.map((t,i) =>
+    i===trail.length-1 ? (i===0 ? `<b style="color:var(--ink);font-weight:600">${TITLES[t]}</b>` : `<span style="color:var(--ink);font-weight:600">${TITLES[t]}</span>`)
+    : (i===0 ? `<button onclick="go('${t}')">${TITLES[t]}</button>` : `<span><button onclick="go('${t}')">${TITLES[t]}</button></span>`)
+  ).join("");
+
+  window.scrollTo({top:0});
+}
+
+function go(id){
+  history.pushState({screen:id}, "", "#" + id);
+  renderScreen(id);
+}
+
+/* ---------- shared checker engine ---------- */
+function buildChecker(courses, programs, chipsEl, gridEl, summaryEl, summaryFn){
+  const selected = new Set();
+  courses.forEach(c => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.setAttribute("aria-pressed","false");
+    b.innerHTML = `${c.short}<small>${c.name}</small>`;
+    b.onclick = () => {
+      selected.has(c.code) ? selected.delete(c.code) : selected.add(c.code);
+      b.setAttribute("aria-pressed", selected.has(c.code));
+      render();
+    };
+    chipsEl.appendChild(b);
+  });
+  function clauseLabel(p, clause){ return p.labels[clause.join(",")] || clause.join(" or "); }
+  function render(){
+    const none = selected.size === 0;
+    let openCount = 0;
+    gridEl.innerHTML = "";
+    programs.forEach(p => {
+      const missing = p.req.filter(cl => !cl.some(code => selected.has(code)));
+      const open = !none && missing.length === 0;
+      if (open) openCount++;
+      const card = document.createElement("article");
+      card.className = "card";
+      const status = none ? `<span class="status neutral">Select above to check</span>`
+        : open ? `<span class="status open">Open: requirements covered</span>`
+        : `<span class="status missing">Missing ${missing.length} requirement${missing.length>1?"s":""}</span>`;
+      const reqList = p.req.map(cl => {
+        const have = cl.some(code => selected.has(code));
+        const cls = none ? "" : (have ? "have" : "need");
+        const mark = none ? "·" : (have ? "✓" : "✗");
+        return `<li class="${cls}"><span class="mark">${mark}</span><span>${clauseLabel(p, cl)}</span></li>`;
+      }).join("");
+      card.innerHTML = `
+        <div class="uni-name">${p.uni}</div><h3>${p.name}</h3>${status}
+        <ul class="req">${reqList}</ul>
+        ${p.rec ? `<div class="note"><strong>Recommended:</strong> ${p.rec}</div>` : ""}
+        <div class="note">${p.note}</div>
+        <div class="src">Source: <a href="${p.url}" target="_blank" rel="noopener">${p.src}</a> · verified 2026-06-11</div>`;
+      gridEl.appendChild(card);
+    });
+    summaryEl.textContent = summaryFn(none, openCount, programs.length, selected);
+  }
+  render();
+}
+
+/* ---------- Grade 12 checker data ---------- */
+const HS_COURSES = [
+  {code:"ENG4U", short:"ENG4U", name:"English"},
+  {code:"SBI4U", short:"SBI4U", name:"Biology"},
+  {code:"SCH4U", short:"SCH4U", name:"Chemistry"},
+  {code:"MHF4U", short:"MHF4U", name:"Adv. Functions"},
+  {code:"MCV4U", short:"MCV4U", name:"Calculus & Vectors"},
+  {code:"MDM4U", short:"MDM4U", name:"Data Management"},
+  {code:"SPH4U", short:"SPH4U", name:"Physics"},
+  {code:"ARTS",  short:"+1", name:"Non-math/sci U/M course"}
+];
+const HS_PROGRAMS = [
+  { uni:"McMaster University", name:"Honours Health Sciences (BHSc)",
+    req:[["ENG4U"],["SBI4U"],["SCH4U"],["MHF4U","MCV4U","MDM4U"],["ARTS"]],
+    labels:{ "MHF4U,MCV4U,MDM4U":"One Grade 12 math (MHF4U / MCV4U / MDM4U)", "ARTS":"One non-math, non-science, non-tech U/M course" },
+    note:"Minimum 90% in the six courses just to be eligible. Mandatory supplementary application. Grade 11 marks not seen.",
+    src:"future.mcmaster.ca", url:"https://future.mcmaster.ca/programs/health-sciences/" },
+  { uni:"McMaster University", name:"Nursing (BScN)",
+    req:[["ENG4U"],["SBI4U"],["SCH4U"],["MHF4U","MCV4U","MDM4U"]],
+    labels:{ "MHF4U,MCV4U,MDM4U":"One Grade 12 math (MHF4U / MCV4U / MDM4U)" },
+    note:"Plus 2 additional 4U/M courses (6 total). Mandatory Casper test; selection weighs grades 80% and Casper 20%.",
+    src:"nursing.mcmaster.ca", url:"https://nursing.mcmaster.ca/basic-stream-admission-requirements/" },
+  { uni:"Western University (Schulich)", name:"Medical Sciences (BMSc pathway)",
+    req:[["ENG4U"],["SBI4U"],["SCH4U"],["MCV4U"]], labels:{},
+    rec:"SPH4U recommended",
+    note:"Grades-only admission on your best six 4U/M including all four prerequisites. Typically high 80s to mid 90s.",
+    src:"schulich.uwo.ca", url:"https://www.schulich.uwo.ca/bmsc/future-students/applying/from-ontario-high-schools.html" },
+  { uni:"Western University", name:"Health Sciences (BHSc)",
+    req:[["ENG4U"],["SBI4U"],["MHF4U","MCV4U","MDM4U"]],
+    labels:{ "MHF4U,MCV4U,MDM4U":"One Grade 12 math (MHF4U / MCV4U / MDM4U)" },
+    rec:"SCH4U strongly advised (required for the Biology stream and essential for med or dent plans)",
+    note:"Admission average guideline: high 80s to low 90s.",
+    src:"welcome.uwo.ca", url:"https://welcome.uwo.ca/what-can-i-study/undergraduate-programs/health-sciences.html" },
+  { uni:"Queen's University", name:"Health Sciences (BHSc, on-campus)",
+    req:[["ENG4U"],["SBI4U"],["SCH4U"],["MHF4U","MCV4U"]],
+    labels:{ "MHF4U,MCV4U":"Advanced Functions or Calculus & Vectors" },
+    note:"Minimum 80% in ENG4U and 75% cumulative to be considered; anticipated average 90%+. Mandatory supplementary application. (Queen's pages conflict on the math rule; the stricter reading is shown.)",
+    src:"bhsc.queensu.ca", url:"https://bhsc.queensu.ca/future-students/admission" },
+  { uni:"University of Toronto (St. George)", name:"Life Sciences (Arts & Science)",
+    req:[["ENG4U"],["MCV4U"]], labels:{},
+    rec:"SBI4U and SCH4U strongly advised, since many first-year courses and second-year streams require them",
+    note:"Admission to the broad category on your top six 4U/M; you pick a major after Year 1.",
+    src:"artsci.utoronto.ca", url:"https://www.artsci.utoronto.ca/future/ready-apply/admission-requirements" },
+  { uni:"University of Waterloo", name:"Health Sciences (BSc)",
+    req:[["ENG4U"],["SBI4U"],["SCH4U"],["MHF4U","MCV4U","MDM4U"]],
+    labels:{ "MHF4U,MCV4U,MDM4U":"Any Grade 12 U math" },
+    note:"Each required course needs a minimum grade of 70. Admission average: mid 80s (regular) or high 80s (co-op).",
+    src:"uwaterloo.ca", url:"https://uwaterloo.ca/future-students/admissions/admission-requirements/health-sciences/canada/ontario" },
+  { uni:"University of Waterloo", name:"Life Sciences (Biochem / Bio / Biomed Sci / Psych BSc)",
+    req:[["ENG4U"],["MHF4U"],["MCV4U"]], labels:{},
+    rec:"Biology and Chemistry are helpful background but do not affect your admission chances",
+    note:"Each required course needs a minimum grade of 70. Note the inversion: Waterloo Life Sci requires BOTH math courses but no sciences.",
+    src:"uwaterloo.ca", url:"https://uwaterloo.ca/future-students/admissions/admission-requirements/life-sciences/canada/ontario" }
+];
+
+/* ---------- Professional fields with full course prerequisites ---------- */
+const FIELDS = {
+  dent: {
+    title:"Dentistry",
+    sub:"There are 10 dental schools in Canada. DDS and DMD are the same degree under different names. Almost all require the DAT and a competitive GPA; prerequisite courses differ by school.",
+    note:"DAT score scales and GPA cutoffs reset every cycle, so always confirm on each school's own admissions page before applying. The two French-language Quebec schools (Montreal, Laval) admit mainly from CEGEP and publish in French; their cards point to the official French page. Verified 2026-06-11.",
+    programs:[
+      { uni:"University of Toronto", name:"Doctor of Dental Surgery (DDS)",
+        degree:"At least 3 years of university (about 15 full-year courses)",
+        gpa:"3.0 minimum to apply; interview invitations have typically gone to roughly 3.85",
+        test:"DAT within 24 months (Academic Average and Perceptual Ability sections; highest attempt counts). CASPer required.",
+        courses:[
+          "General biochemistry (1 full course)",
+          "General mammalian (human or animal) physiology (1 full course, all systems)",
+          "Life science / biology-based courses (2 full-year courses)"
+        ],
+        src:"dentistry.utoronto.ca", url:"https://www.dentistry.utoronto.ca/prospective-students/undergraduate/DDS" },
+      { uni:"Western University (Schulich)", name:"Doctor of Dental Surgery (DDS)",
+        degree:"At least 3 years (90 credit hours), each year with 30+ credits in fall/winter",
+        gpa:"Minimum cumulative 3.0 across all undergraduate coursework; competitive is higher",
+        test:"DAT required (Canadian). CASPer required. Prerequisite course minimum grade is 50% / pass.",
+        courses:[
+          "Schulich lists prerequisite course areas rather than a fixed list; confirm acceptable courses on its admissions page",
+          "Internationally trained or already-enrolled dental students are not eligible"
+        ],
+        src:"schulich.uwo.ca", url:"https://www.schulich.uwo.ca/med-dent-admissions/dentistry/admission-requirements.html" },
+      { uni:"University of British Columbia", name:"Doctor of Dental Medicine (DMD)",
+        degree:"90 credits (3 academic years) at a recognized university",
+        gpa:"Minimum 70% / 2.8 to be eligible; competitive applicants present 3.6 or higher",
+        test:"Canadian DAT required (US DAT may be accepted); MMI interview. Prerequisite minimum grade equivalent to a UBC C-.",
+        courses:[
+          "Biology (with the required lab components)",
+          "General Chemistry (with lab)",
+          "Organic Chemistry",
+          "Biochemistry",
+          "English (6 credits)"
+        ],
+        src:"dentistry.ubc.ca", url:"https://www.dentistry.ubc.ca/education/dmd/dmd-admission-procedures/dmd-required-courses/" },
+      { uni:"University of Alberta (Mike Petryk)", name:"Doctor of Dental Surgery (DDS)",
+        degree:"At least 2 years (60 units) of transferable full-time study",
+        gpa:"Minimum overall GPA 3.3 to be eligible; below 3.0 not considered; aim for 3.5+",
+        test:"Canadian DAT within 5 years (minimum 15/30 in natural sciences, perceptual ability and reading comprehension). Structured interview.",
+        courses:[
+          "Biology",
+          "Chemistry (inorganic)",
+          "Organic Chemistry",
+          "Physics",
+          "Biochemistry",
+          "Human Physiology (a specific equivalent of PHYSL 210; no retakes allowed)",
+          "English",
+          "Statistics"
+        ],
+        src:"ualberta.ca/school-of-dentistry", url:"https://www.ualberta.ca/en/school-of-dentistry/programs-and-admissions/dentistry/dds-doctor-of-dental-surgery.html" },
+      { uni:"University of Saskatchewan", name:"Doctor of Dental Medicine (DMD)",
+        degree:"2 years (60 credits) of pre-dentistry study at 30 credits per year",
+        gpa:"Pre-dental average must be above 70%; selection blends GPA (65%) and DAT (15%) plus interview",
+        test:"Canadian DAT and CASPer required. All pre-dentistry coursework done by April of the application year.",
+        courses:[
+          "A set of required pre-dentistry science and English courses (see the official admissions guide for the exact list and accepted equivalents)"
+        ],
+        src:"admissions.usask.ca", url:"https://admissions.usask.ca/dentistry.php" },
+      { uni:"University of Manitoba (Dr. Gerald Niznick)", name:"Doctor of Dental Medicine (DMD)",
+        degree:"Advanced-entry: required courses completed over 2 years of full-time study (24+ new credits per year)",
+        gpa:"Ranked on a core-course average; recent minimums were roughly 3.6 to 3.85 depending on the pool",
+        test:"Canadian English DAT, written by November the year before entry. Canadian citizens and permanent residents only; priority to Manitoba applicants.",
+        courses:[
+          "A set of required core courses completed over two years (see the official applicant requirements page for the exact list)"
+        ],
+        src:"umanitoba.ca/dentistry", url:"https://umanitoba.ca/explore/undergraduate-admissions/requirements/dentistry" },
+      { uni:"Dalhousie University", name:"Doctor of Dental Surgery (DDS)",
+        degree:"At least 2 years of undergraduate study",
+        gpa:"Competitive; most successful applicants present strong GPAs (3.5+)",
+        test:"DAT required (best component scores within 2 years; most admitted have 15+ per section, ~21 average). At least one reference from a university instructor.",
+        courses:[
+          "A full year of biology and other required science courses (confirm the current list on the Dalhousie dentistry admissions page)"
+        ],
+        src:"dal.ca/dentistry", url:"https://www.dal.ca/faculty/dentistry.html" },
+      { uni:"McGill University", name:"Doctor of Dental Medicine (DMD)",
+        degree:"University degree or CEGEP route; CASPer required",
+        gpa:"Highly competitive; confirm the current minimum on McGill's dentistry page",
+        test:"DAT and CASPer required. Prerequisite science courses (biology, chemistry, organic chemistry, physics, biochemistry) expected.",
+        courses:[
+          "Biology, general chemistry, organic chemistry, physics and biochemistry are the expected science base; see McGill's official dentistry admissions page for the exact requirements"
+        ],
+        src:"mcgill.ca/dentistry", url:"https://www.mcgill.ca/dentistry/" },
+      { uni:"Université de Montréal", name:"Doctorat en médecine dentaire (DMD)",
+        degree:"Primarily a CEGEP science DEC, or a recognized university equivalent",
+        gpa:"Highly competitive academic record (cote R); CASPer required",
+        test:"Taught in French; French proficiency required. See the official French admissions page for the exact CEGEP prerequisites.",
+        courses:[
+          "CEGEP-level biology, chemistry, physics and mathematics (the science DEC); confirm on the official French page"
+        ],
+        src:"medent.umontreal.ca", url:"https://medent.umontreal.ca/" },
+      { uni:"Université Laval", name:"Doctorat en médecine dentaire (DMD)",
+        degree:"Primarily a CEGEP science DEC, or a recognized university equivalent",
+        gpa:"Highly competitive academic record (cote R)",
+        test:"Taught in French; French proficiency required. See the official French admissions page for the exact CEGEP prerequisites.",
+        courses:[
+          "CEGEP-level biology, chemistry, physics and mathematics (the science DEC); confirm on the official French page"
+        ],
+        src:"fmd.ulaval.ca", url:"https://www.fmd.ulaval.ca/" }
+    ]
+  },
+  physio: {
+    title:"Physiotherapy (MScPT)",
+    sub:"Every Ontario physiotherapy program is applied to through one portal, ORPAS, which opens mid-October and closes early January. The prerequisite courses differ by school.",
+    note:"Western, Queen's and Ottawa physiotherapy also apply through ORPAS; their full course lists are on the ORPAS program-requirements page. Verified 2026-06-11.",
+    programs:[
+      { uni:"McMaster University", name:"MSc Physiotherapy",
+        degree:"4-year bachelor's degree (120 units), any discipline; at least 10 courses at the 3rd/4th-year level",
+        gpa:"Sub-GPA 3.3 / B+ / 77% over your last 2 years or 60 units",
+        test:"No CASPer, no references, no volunteer hours required",
+        courses:[
+          "Human Physiology (foundational, whole-body, 0.5 credit, min B+)",
+          "Human Anatomy (foundational, whole-body, 0.5 credit, min B+)",
+          "Statistics or Health Research Methods (0.5 credit, min B+)",
+          "Humanities or Social Science (0.5 credit, min B+; Kinesiology/Science/Health Science codes not accepted)"
+        ],
+        src:"srs-pt.healthsci.mcmaster.ca", url:"https://srs-pt.healthsci.mcmaster.ca/education/future-students/admissions/admission-requirements/" },
+      { uni:"University of Toronto", name:"MScPT",
+        degree:"Bachelor's degree, conferred by end of June of the application year",
+        gpa:"Competitive sub-GPA (see ORPAS); calculated by ORPAS",
+        test:"Two references required (1 professional, 1 academic); family and friends not accepted",
+        courses:[
+          "Prerequisite courses may be at 1st or 2nd-year level",
+          "Life sciences, social sciences and humanities recommended as most relevant",
+          "See the ORPAS U of T entry for the exact required course list"
+        ],
+        src:"physicaltherapy.utoronto.ca", url:"https://www.physicaltherapy.utoronto.ca/how-apply" }
+    ]
+  },
+  optom: {
+    title:"Optometry (Doctor of Optometry)",
+    sub:"There are only two optometry schools in Canada: Waterloo (English) and Université de Montréal (French). Both are second-entry: you complete required courses first, then apply.",
+    note:"15 required courses and 4 required labs in total at Waterloo; every one must be done before entry, with no exceptions. A minimum 75% overall average is required, though admitted applicants have ranged 79 to 92%. OAT minimum 300 (2024 applicant average 350). Verified 2026-06-11.",
+    programs:[
+      { uni:"University of Waterloo", name:"Doctor of Optometry (OD)",
+        degree:"3+ years of BSc or other university science studies; minimum 6 terms at a full course load",
+        gpa:"Minimum overall university average 75%",
+        test:"OAT required (minimum 300; multiple attempts allowed, highest valid score used). CASPer required. Two references, including an optometrist you have shadowed at least 8 hours.",
+        courses:[
+          "English (1 course, with a significant writing component)",
+          "Introductory Ethics (1 course)",
+          "Introductory Psychology (1 course)",
+          "Introductory Biology with lab (2 courses + 1 lab)",
+          "Introductory Microbiology (1 course; immunology does not count)",
+          "Physiology, human or mammalian (2 courses)",
+          "Introductory Chemistry with lab (1 course + 1 lab)",
+          "Introductory Biochemistry (1 course)",
+          "Introductory Organic Chemistry (1 course)",
+          "Introductory Physics with lab (2 courses + 2 labs)",
+          "Calculus (1 course)",
+          "Statistics (1 course)"
+        ],
+        src:"uwaterloo.ca/optometry-vision-science", url:"https://uwaterloo.ca/optometry-vision-science/future-optometry-students/application-requirements" },
+      { uni:"Université de Montréal (Quebec)", name:"Doctorat en optométrie (OD)",
+        degree:"A science CEGEP diploma (DEC en sciences de la nature or sciences, lettres et arts), or a recognized equivalent / university degree",
+        gpa:"Highly competitive academic record; 56 seats split across applicant categories",
+        test:"Taught entirely in French; French proficiency required. CASPer plus a vision test and an interview.",
+        courses:[
+          "CEGEP-level Mathematics 103 and 203",
+          "CEGEP-level Chemistry 101 (general science chemistry sequence)",
+          "CEGEP-level Physics 101 and 201",
+          "Plus the biology and chemistry courses in the science DEC"
+        ],
+        src:"admission.umontreal.ca", url:"https://admission.umontreal.ca/programmes/doctorat-de-1er-cycle-en-optometrie/" }
+    ]
+  },
+  chiro: {
+    title:"Chiropractic (Doctor of Chiropractic)",
+    sub:"CMCC in Toronto is Canada's main English-language chiropractic program. Its rules surprise people: no specific courses are required at all.",
+    note:"Confirm the GPA floor on CMCC's own page; the 2.5 figure is widely published by partner universities. Verified 2026-06-11.",
+    programs:[
+      { uni:"CMCC (Toronto)", name:"Doctor of Chiropractic",
+        degree:"Minimum 90 credit hours (3 years) of undergraduate study; no specific degree or program required",
+        gpa:"Minimum cumulative 2.5 / 4.0; competitive applicants are well above this",
+        test:"No standardized test. Selection includes an admissions interview and personal statement.",
+        courses:[
+          "No prerequisite courses are required",
+          "Recommended: organic chemistry with lab (1 full course)",
+          "Recommended: biology with lab (1 full course)",
+          "Recommended: introductory psychology (half course)",
+          "Recommended: humanities or social sciences (1.5 courses)"
+        ],
+        src:"cmcc.ca", url:"https://www.cmcc.ca/admissions/admission-requirements" }
+    ]
+  },
+  pa: {
+    title:"Physician Assistant",
+    sub:"Physician assistants work under a physician's supervision. Ontario's two programs are at McMaster and through the U of T-led PA Consortium.",
+    note:"Apply through OUAC. McMaster requires no health-care hours; the U of T Consortium does. Verified 2026-06-11.",
+    programs:[
+      { uni:"McMaster University", name:"Physician Assistant (BHSc)",
+        degree:"2+ years of university (20 half courses or 10 full courses)",
+        gpa:"Minimum cumulative 3.0 on the OMSAS scale; 2025 interview cohort averaged 3.79",
+        test:"No required test. Eligible applicants are invited to a supplemental application and multiple mini interview.",
+        courses:[
+          "No required prerequisite courses"
+        ],
+        src:"physicianassistant.mcmaster.ca", url:"https://physicianassistant.mcmaster.ca/admissions/admission-requirements/" },
+      { uni:"University of Toronto (PA Consortium)", name:"BScPA",
+        degree:"10 full-year courses (20 half courses) toward any undergraduate degree, completed with grades before the deadline",
+        gpa:"Minimum cumulative 3.0 on the OMSAS scale (CEGEP grades excluded)",
+        test:"Canadian citizen or permanent resident only. Health-care experience hours required (this is the only Canadian PA program that requires them). MMI interview.",
+        courses:[
+          "No required prerequisite courses",
+          "Recommended (boosts the application, not mandatory): one full-course equivalent of Human Anatomy and Human Physiology"
+        ],
+        src:"paconsortium.ca", url:"https://paconsortium.ca/admission-requirements" }
+    ]
+  },
+  nursing: {
+    title:"Accelerated (second-entry) Nursing",
+    sub:"For students who already have university study and want to become a registered nurse. This is different from direct-entry BScN, which is in the Grade 12 checker.",
+    note:"All of these are second-entry: you need existing university credits. Apply through OUAC. Verified 2026-06-11.",
+    programs:[
+      { uni:"McMaster University", name:"BScN Accelerated (F) Stream, 20 months",
+        degree:"At least 2 years (54+ units) of university study, primarily in a science program",
+        gpa:"Sub-GPA of at least B / 75% over your last 2 years (minimum 54 units)",
+        test:"Non-academic requirements (immunizations, police check) only after an offer.",
+        courses:[
+          "Psychology: 6 units, 3 of which are introductory (min C-)",
+          "Human Physiology: 6 units, or Human Anatomy plus Physiology covering all systems (min C-)",
+          "Science electives: 6 units from biology, chemistry, biochemistry, nutrition or kinesiology (min C-)"
+        ],
+        src:"nursing.mcmaster.ca", url:"https://nursing.mcmaster.ca/mcmaster-nursing-programs/undergraduate-programs-school-of-nursing-mcmaster/accelerated-f-stream-20-months/accelerated-stream-admission-requirements/" },
+      { uni:"York University", name:"2nd Entry BScN, 6 semesters (2 years)",
+        degree:"At least 60 university credits (about 2 years) in any discipline, completed before entry",
+        gpa:"Overall B (3.0) or better, and B+ (3.3) or better over your last 30 credits; admitted averages are typically in the mid-70s",
+        test:"Supplementary Information Form after applying. No previous nursing experience permitted.",
+        courses:[
+          "Psychology: 6 credits, min B (statistics and research methods do not count)",
+          "Human Anatomy and Physiology: 6 credits min B, or 3 credits Anatomy plus 3 credits Physiology each min B"
+        ],
+        src:"futurestudents.yorku.ca", url:"https://futurestudents.yorku.ca/program/nursing-second-entry" },
+      { uni:"Western University", name:"BScN Compressed Time Frame, 19 months",
+        degree:"At least 2 full-time years of university (10+ full courses)",
+        gpa:"Minimum overall 70% in your last 10 full courses; admission is competitive and the cutoff is set yearly",
+        test:"CASPer required. 64 students admitted per year. Five consecutive terms across two academic years.",
+        courses:[
+          "Required courses include physiology, anatomy and statistics, each with a minimum grade of 60%",
+          "See Western's CTF approved-course lists for accepted equivalents"
+        ],
+        src:"uwo.ca/fhs/nursing", url:"https://www.uwo.ca/fhs/nursing/undergrad/bscn_ctf/bscn_reg_ctf/admission.html" }
+    ]
+  },
+  pharmacy: {
+    title:"Pharmacy (PharmD)",
+    sub:"There are 11 universities in Canada with pharmacy programs accredited by CCAPP, the national accrediting body. Most entry-to-practice PharmD programs are second-entry: you complete 1 to 2 years of specific university courses, then apply.",
+    note:"This list names all 11 accredited schools. The science prerequisites (biology, general and organic chemistry, and often biochemistry, physiology, calculus and statistics) and the GPA and test rules differ by school, so each card points to the official page for the exact, current requirements rather than guessing. The Quebec French-language schools (Montreal, Laval) admit mainly from CEGEP. Verified 2026-06-11.",
+    programs:[
+      { uni:"University of Toronto (Leslie Dan)", name:"Doctor of Pharmacy (PharmD)",
+        degree:"Second-entry: at least 2 years of university (minimum 8.0 full-course equivalents)",
+        gpa:"Cumulative average of at least 70%; competitive applicants are higher",
+        test:"CASPer required. Prerequisite courses in chemistry, biology and math expected; confirm the current list on the official page.",
+        courses:["See the Leslie Dan official admissions page for the exact prerequisite course list"],
+        src:"pharmacy.utoronto.ca", url:"https://www.pharmacy.utoronto.ca/pharmd-program/admissions" },
+      { uni:"University of Waterloo", name:"Doctor of Pharmacy (PharmD)",
+        degree:"Second-entry: at least 2 years of university prerequisite study",
+        gpa:"Competitive; confirm the current minimum on the official page",
+        test:"CASPer required. Co-op-based program. Confirm prerequisite courses on the official page.",
+        courses:["See the Waterloo School of Pharmacy official page for the exact prerequisite course list"],
+        src:"uwaterloo.ca/pharmacy", url:"https://uwaterloo.ca/pharmacy/future-students" },
+      { uni:"University of British Columbia", name:"Doctor of Pharmacy (PharmD)",
+        degree:"Second-entry: at least 60 credits of university prerequisite study",
+        gpa:"Competitive; confirm the current minimum on the official page",
+        test:"Confirm prerequisite courses and any test requirements on the official page.",
+        courses:["See the UBC Faculty of Pharmaceutical Sciences official page for the exact prerequisite course list"],
+        src:"pharmsci.ubc.ca", url:"https://pharmsci.ubc.ca/programs/entry-practice-pharmd" },
+      { uni:"University of Alberta", name:"Doctor of Pharmacy (PharmD)",
+        degree:"Second-entry: at least 1 year of university prerequisite study",
+        gpa:"Competitive; confirm the current minimum on the official page",
+        test:"Confirm prerequisite courses and any test requirements on the official page.",
+        courses:["See the U of A Faculty of Pharmacy official page for the exact prerequisite course list"],
+        src:"ualberta.ca/pharmacy", url:"https://www.ualberta.ca/pharmacy/index.html" },
+      { uni:"University of Saskatchewan", name:"Doctor of Pharmacy (PharmD)",
+        degree:"Second-entry: prerequisite university study before entry",
+        gpa:"Competitive; confirm the current minimum on the official page",
+        test:"Confirm prerequisite courses and any test requirements on the official page.",
+        courses:["See the USask College of Pharmacy and Nutrition official page for the exact prerequisite course list"],
+        src:"pharmacy-nutrition.usask.ca", url:"https://pharmacy-nutrition.usask.ca/" },
+      { uni:"University of Manitoba", name:"Doctor of Pharmacy (PharmD)",
+        degree:"Second-entry: prerequisite university study before entry",
+        gpa:"Competitive; confirm the current minimum on the official page",
+        test:"Confirm prerequisite courses and any test requirements on the official page.",
+        courses:["See the U of M College of Pharmacy official page for the exact prerequisite course list"],
+        src:"umanitoba.ca/pharmacy", url:"https://umanitoba.ca/pharmacy/" },
+      { uni:"University of Ottawa", name:"Doctor of Pharmacy (PharmD)",
+        degree:"Prerequisite university study before entry; offered in French",
+        gpa:"Competitive; confirm the current minimum on the official page",
+        test:"Taught in French; French proficiency required. Confirm prerequisites on the official page.",
+        courses:["See the uOttawa pharmacy official page for the exact prerequisite course list"],
+        src:"uottawa.ca", url:"https://www.uottawa.ca/faculty-medicine/pharmacy" },
+      { uni:"Université de Montréal", name:"Doctorat en pharmacie (PharmD)",
+        degree:"Primarily a CEGEP science DEC, or a recognized equivalent",
+        gpa:"Competitive academic record (cote R)",
+        test:"Taught in French; French proficiency required. See the official French page for CEGEP prerequisites.",
+        courses:["See the Faculté de pharmacie official French page for the exact prerequisites"],
+        src:"pharm.umontreal.ca", url:"https://pharm.umontreal.ca/" },
+      { uni:"Université Laval", name:"Doctorat en pharmacie (PharmD)",
+        degree:"Primarily a CEGEP science DEC, or a recognized equivalent",
+        gpa:"Competitive academic record (cote R)",
+        test:"Taught in French; French proficiency required. See the official French page for CEGEP prerequisites.",
+        courses:["See the Faculté de pharmacie official French page for the exact prerequisites"],
+        src:"pha.ulaval.ca", url:"https://www.pha.ulaval.ca/" },
+      { uni:"Dalhousie University", name:"Doctor of Pharmacy (PharmD)",
+        degree:"Second-entry: at least 1 year of university prerequisite study",
+        gpa:"Competitive; confirm the current minimum on the official page",
+        test:"Confirm prerequisite courses and any test requirements on the official page.",
+        courses:["See the Dalhousie College of Pharmacy official page for the exact prerequisite course list"],
+        src:"dal.ca/pharmacy", url:"https://www.dal.ca/faculty/healthprofessions/pharmacy.html" },
+      { uni:"Memorial University of Newfoundland", name:"Doctor of Pharmacy (PharmD)",
+        degree:"Second-entry: prerequisite university study before entry",
+        gpa:"Competitive; confirm the current minimum on the official page",
+        test:"Confirm prerequisite courses and any test requirements on the official page.",
+        courses:["See the Memorial School of Pharmacy official page for the exact prerequisite course list"],
+        src:"mun.ca/pharmacy", url:"https://www.mun.ca/pharmacy/" }
+    ]
+  }
+};
+
+function openField(key){
+  const f = FIELDS[key];
+  document.getElementById("field-title").textContent = f.title;
+  document.getElementById("field-sub").textContent = f.sub;
+  document.getElementById("field-note").innerHTML = f.note;
+  document.getElementById("field-grid").innerHTML = f.programs.map(p => `
+    <article class="card">
+      <div class="uni-name">${p.uni}</div>
+      <h3>${p.name}</h3>
+      <div class="note"><strong>Degree:</strong> ${p.degree}</div>
+      <div class="note"><strong>GPA:</strong> ${p.gpa}</div>
+      <div class="note"><strong>Tests &amp; extras:</strong> ${p.test}</div>
+      <div class="note" style="margin-top:4px"><strong>Required courses:</strong></div>
+      <ul class="req">${p.courses.map(c => `<li><span class="mark">•</span><span>${c}</span></li>`).join("")}</ul>
+      <div class="src">Source: <a href="${p.url}" target="_blank" rel="noopener">${p.src}</a> · verified 2026-06-11</div>
+    </article>`).join("");
+  go("field");
+}
+
+/* ---------- Ontario undergrad pre-med program directory (names + official links) ---------- */
+const PREMED_UNIS = [
+  ["McMaster University", "Health Sciences, Life Sciences, Biology, Biochemistry, Neuroscience, Psychology Neuroscience & Behaviour", "https://future.mcmaster.ca/programs/"],
+  ["Queen's University", "Health Sciences, Life Sciences & Biochemistry, Biology, Biochemistry, Kinesiology", "https://www.queensu.ca/admission/programs"],
+  ["Western University", "Medical Sciences, Health Sciences, Biology, Biochemistry, Neuroscience", "https://welcome.uwo.ca/what-can-i-study/undergraduate-programs/"],
+  ["University of Waterloo", "Health Sciences, Biomedical Sciences, Biology, Biochemistry, Kinesiology", "https://uwaterloo.ca/future-students/programs"],
+  ["University of Toronto", "Life Sciences, Human Biology, Biology for Health Sciences, Biochemistry, Neuroscience, Immunology, Pharmacology, Molecular Genetics, Kinesiology", "https://www.utoronto.ca/academics/programs"],
+  ["University of Ottawa", "Health Sciences, Biomedical Science, Biology, Biochemistry, Biopharmaceutical Science, Neuroscience", "https://www.uottawa.ca/study/programs"],
+  ["York University", "Biomedical Science, Biology, Biochemistry, Kinesiology & Health Science, Neuroscience", "https://futurestudents.yorku.ca/program"],
+  ["Toronto Metropolitan University", "Biomedical Sciences, Biology", "https://www.torontomu.ca/programs/"],
+  ["University of Guelph", "Bio-Medical Science, Biological Science, Biology, Biochemistry, Molecular Biology & Genetics, Neuroscience, Human Kinetics", "https://www.uoguelph.ca/programs/"],
+  ["Brock University", "Biomedical Sciences, Biological Sciences, Biotechnology, Kinesiology", "https://brocku.ca/programs/"],
+  ["Wilfrid Laurier University", "Health Sciences, Biology, Biochemistry & Biotechnology, Kinesiology", "https://www.wlu.ca/programs/"],
+  ["Trent University", "Biomedical Science, Biology, Biochemistry & Molecular Biology", "https://www.trentu.ca/futurestudents/program"],
+  ["Ontario Tech University", "Health Sciences, Biomedical Science, Biological Science", "https://ontariotechu.ca/programs/"],
+  ["University of Windsor", "Biomedical Sciences, Biology, Biochemistry, Kinesiology", "https://www.uwindsor.ca/futurestudents/101/programs"],
+  ["Laurentian University", "Biomedical Biology, Biology, Biochemistry, Kinesiology", "https://laurentian.ca/programs"],
+  ["Lakehead University", "Biology, Biochemistry, Kinesiology", "https://www.lakeheadu.ca/programs"],
+  ["Nipissing University", "Biology", "https://www.nipissingu.ca/academics/programs"],
+  ["Algoma University", "Biology", "https://algomau.ca/academics/programs/"]
+];
+let premedOpen = null;
+function renderPremed(){
+  const el = document.getElementById("premed-grid");
+  if(!el) return;
+  el.style.display = "grid"; el.style.gap = "16px";
+  el.style.gridTemplateColumns = "repeat(auto-fill,minmax(280px,1fr))";
+  el.innerHTML = PREMED_UNIS.map(([uni, progs, url], i) => {
+    const open = premedOpen === i;
+    const list = progs.split(",").map(p => p.trim());
+    return `
+    <article class="card" style="gap:8px">
+      <button class="linkbtn" style="text-align:left;font-size:21px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;text-decoration:none;color:var(--ink)" onclick="togglePremed(${i})">
+        ${uni} <span style="color:var(--clay);font-size:15px">${open ? "▾" : "▸"}</span>
+      </button>
+      ${open ? `
+        <div class="note" style="margin-top:2px"><strong>Programs students take for pre-med:</strong></div>
+        <ul class="req" style="margin-top:2px">${list.map(p => `<li><span class="mark">•</span><span>${p}</span></li>`).join("")}</ul>
+        <div class="src">Requirements vary by program and reset yearly. <a href="${url}" target="_blank" rel="noopener">Official programs &amp; requirements →</a></div>
+      ` : `<div class="note">${list.join(" · ")}</div>`}
+    </article>`;
+  }).join("");
+}
+function togglePremed(i){ premedOpen = (premedOpen === i ? null : i); renderPremed(); }
+renderPremed();
+
+/* ---------- build both checkers ---------- */
+buildChecker(HS_COURSES, HS_PROGRAMS,
+  document.getElementById("chips"), document.getElementById("grid"), document.getElementById("summary"),
+  (none, open, total, sel) => none
+    ? "No courses selected yet. Every card shows its full requirement list."
+    : `${open} of ${total} programs open with your current plan.` +
+      (sel.has("MCV4U") ? "" : " Without Calculus & Vectors (MCV4U), Western Medical Sciences, U of T Life Sciences and Waterloo Life Sciences stay closed."));
+
+/* ---------- Medical schools (AFMC 2026) ---------- */
+const MED_SCHOOLS = [
+  { name:"Memorial University of Newfoundland", prov:"NL", region:"Atlantic",
+    degree:"Bachelor's degree required at admission", gpa:"No minimum; mean 3.5/4.0 (must be competitive)",
+    mcat:"Required; no minimum, 505+ recommended", casper:"Required; 3rd/4th quartile recommended",
+    prereq:"No specific course prerequisites listed", seats:"110", note:"83 seats for NL residents. International no longer accepted.",
+    url:"https://www.mun.ca/medicine/" },
+  { name:"Dalhousie University", prov:"NS", region:"Atlantic",
+    degree:"90-120 credit-hour baccalaureate (any field), completed or in progress", gpa:"Min 3.3 (NS/NB/PEI) or 3.7 (other Canadian); mean 3.8",
+    mcat:"Required; minimum is set on a sliding scale against GPA", casper:"Required; used for interview selection; below-minimum scores not considered",
+    prereq:"No specific course prerequisites listed", seats:"164", note:"Pre-interview score: 50% GPA, 25% MCAT, 25% CASPer. Priority pathways for Black, Indigenous, rural.",
+    url:"https://medicine.dal.ca/departments/core-units/admissions.html" },
+  { name:"Université Laval", prov:"QC", region:"Quebec (French)",
+    degree:"CEGEP or equivalent; university applicants also considered", gpa:"Threshold 'cote de rendement' set per applicant category",
+    mcat:"Not required", casper:"Required",
+    prereq:"CEGEP-level Biology, Chemistry, Math and Physics (or equivalents)", seats:"~316", note:"Taught in French; French proficiency tested. 301 seats for Quebec applicants.",
+    url:"https://www.fmed.ulaval.ca/etudes/doctorat-en-medecine" },
+  { name:"Université de Sherbrooke", prov:"QC", region:"Quebec (French)",
+    degree:"CEGEP or university; see site", gpa:"See site (varies by contingent)",
+    mcat:"Not required", casper:"Required (plus TAAMUS / MEM interview)",
+    prereq:"See official site", seats:"238", note:"Taught in French; French proficiency tested. Reserved seats for Atlantic-Canada applicants.",
+    url:"https://www.usherbrooke.ca/etudes-medecine/programmes-detudes/doctorat-en-medecine/admission" },
+  { name:"Université de Montréal", prov:"QC", region:"Quebec (French)",
+    degree:"CEGEP (preparatory year) or a recognized bachelor's degree", gpa:"See site",
+    mcat:"Not required", casper:"Required (plus MEM interview)",
+    prereq:"CEGEP Biology (00XU) and Chemistry (00XV), or equivalents", seats:"135 MD + 255 prep year", note:"Taught in French; French proficiency tested. Most seats for Quebec residents.",
+    url:"https://md.umontreal.ca/" },
+  { name:"McGill University (MD-CM)", prov:"QC", region:"Quebec (English/French)",
+    degree:"4-year bachelor's (120 credits) at admission", gpa:"Competitive ~3.5+; mean of interviewed Quebec applicants 3.89",
+    mcat:"Not accepted", casper:"Required",
+    prereq:"Full year with labs in biology, chemistry and physics; one semester organic chemistry. Physiology, biochem, cell/molecular bio, stats recommended.",
+    seats:"249", note:"French proficiency required (B2 Montreal, C1 Outaouais). Med-P preparatory year is for Quebec CEGEP students only.",
+    url:"https://www.mcgill.ca/medadmissions" },
+  { name:"University of Ottawa", prov:"ON", region:"Ontario",
+    degree:"3 years full-time university toward a bachelor's", gpa:"Minimum cGPA set per pool (last 3 years); 2024 class mean 3.93",
+    mcat:"Not required", casper:"Required (in your language of instruction)",
+    prereq:"6 units humanities/social science, 6 units biology, 3 units organic chem, 3 units chem, 3 units biochem, 3 units stats; min 3.0 in each prereq",
+    seats:"~183", note:"English or French stream. 95% of seats for Ontario residents. Apply via OMSAS.",
+    url:"https://www.uottawa.ca/faculty-medicine/undergraduate/admissions" },
+  { name:"Queen's University", prov:"ON", region:"Ontario",
+    degree:"15 full / 30 half undergraduate courses (OMSAS course load 30)", gpa:"Minimum cumulative 3.0 to apply; fluctuates by pool",
+    mcat:"Required; within 5 years of the deadline", casper:"Required",
+    prereq:"No specific course prerequisites listed", seats:"140", note:"Selection uses GPA, MCAT, CASPer, ABS, references, MMI and panel. Apply via OMSAS.",
+    url:"https://meds.queensu.ca/academics/mdprogram/admissions" },
+  { name:"University of Toronto (Temerty)", prov:"ON", region:"Ontario",
+    degree:"3 years full-time university (15 full-course equivalents)", gpa:"Min 3.6 (undergrad) / 3.3 (grad); 3.8 competitive; 2023/24 mean 3.95",
+    mcat:"Required; within 5 years; 125+ per section (124 allowed in one); not used competitively", casper:"Not required",
+    prereq:"2 full-course-equivalents in life sciences; 1 in social science / humanities / languages", seats:"305", note:"St. George and Mississauga campuses. ISAP and BSAP pathways. Apply via OMSAS.",
+    url:"https://applymd.utoronto.ca" },
+  { name:"McMaster University (DeGroote)", prov:"ON", region:"Ontario",
+    degree:"3 years (30 semester credits) of undergrad, any field", gpa:"Minimum 3.0; mean of accepted ~3.90",
+    mcat:"Required; only the CARS section is used, minimum 123", casper:"Required; one third of the interview-invite formula",
+    prereq:"No specific course prerequisites listed", seats:"217", note:"3-year program. Invite formula: 32% GPA, 32% MCAT CARS, 32% CASPer. Hamilton, Waterloo, Niagara campuses. Apply via OMSAS.",
+    url:"https://ugme.healthsci.mcmaster.ca" },
+  { name:"Western University (Schulich)", prov:"ON", region:"Ontario",
+    degree:"3+ years of an undergraduate degree (may be in 3rd year of a 4-year degree)", gpa:"Min 3.7 in each of two years (2020 class)",
+    mcat:"Required; submit most recent; cutoffs vary yearly", casper:"Not required",
+    prereq:"No prerequisite courses", seats:"187", note:"London and Windsor campuses. Western ABS and Southwestern Ontario stream. Apply via OMSAS.",
+    url:"https://www.schulich.uwo.ca/medicine/" },
+  { name:"Northern Ontario School of Medicine (NOSM U)", prov:"ON", region:"Ontario",
+    degree:"4-year undergraduate degree, any discipline", gpa:"Minimum 3.0; mean of successful applicants 3.76",
+    mcat:"Not required", casper:"Not required",
+    prereq:"No course requirements, but a broad education is valued (2 full-course-equivalents outside your major area)", seats:"up to 88", note:"Favours applicants from Northern Ontario, rural/remote, Indigenous and Francophone backgrounds. Apply via OMSAS.",
+    url:"https://www.nosm.ca" },
+  { name:"Toronto Metropolitan University", prov:"ON", region:"Ontario",
+    degree:"4-year undergraduate degree (any program)", gpa:"Minimum OMSAS GPA threshold set annually",
+    mcat:"Not required", casper:"Not required",
+    prereq:"No specific course prerequisites listed", seats:"94", note:"New school; first class 2025/26. 95% of seats for Ontario residents, priority to Brampton/Peel region. Apply via OMSAS.",
+    url:"https://www.torontomu.ca/school-of-medicine/programs/md/" },
+  { name:"University of Manitoba (Max Rady)", prov:"MB", region:"Prairies",
+    degree:"Bachelor's degree completed by June 30 of entry year", gpa:"Adjusted GPA (AGPA) 3.30+ on a 4.5 scale",
+    mcat:"Required", casper:"Required; threshold within 1.5 SD of the pool mean",
+    prereq:"Indigenous course-content prerequisite", seats:"140", note:"~95% of seats for Manitoba residents. Composite score blends AGPA, MCAT, CASPer and coefficients.",
+    url:"https://umanitoba.ca/explore/programs-of-study/medicine-md" },
+  { name:"University of Saskatchewan", prov:"SK", region:"Prairies",
+    degree:"4-year degree, completed by April 30 of entry year", gpa:"Minimum university average 80%; 2024 incoming mean 88.76%",
+    mcat:"Required; one sitting before the deadline", casper:"Required",
+    prereq:"Indigenous studies prerequisite (for 2026 entry)", seats:"108", note:"Most seats for Saskatchewan residents. Apply via the USask online system.",
+    url:"https://medicine.usask.ca/admission-to-the-md-program/how-to-apply.php" },
+  { name:"University of Alberta", prov:"AB", region:"Prairies",
+    degree:"Registered in or holding a bachelor's degree; 60+ transferable units", gpa:"Min cGPA 3.3 (Alberta) or 3.5 (non-Alberta); mean ~3.3-3.5",
+    mcat:"Required; 124 per section (AB); non-AB need 128 CARS + 124 others", casper:"Required",
+    prereq:"No specific course prerequisites listed", seats:"192", note:"85% of seats for Alberta residents. Apply via the U of A system.",
+    url:"https://www.ualberta.ca/medicine/programs/md/" },
+  { name:"University of Calgary (Cumming)", prov:"AB", region:"Prairies",
+    degree:"2 years full-time university/college", gpa:"Min 3.2 (Alberta) or 3.8 (non-Alberta); 2023/24 mean 3.90",
+    mcat:"Required; non-AB need 128+ on CARS", casper:"Not required",
+    prereq:"No prerequisite courses (some courses encouraged)", seats:"180", note:"3-year program. 85% of seats for Alberta residents. In-person MMI.",
+    url:"https://www.ucalgary.ca/mdprogram/admissions" },
+  { name:"University of British Columbia", prov:"BC", region:"West coast",
+    degree:"See UBC MD evaluation criteria", gpa:"Min average 75% (in-province) or 85% (out-of-province); 2023 mean 88.82%",
+    mcat:"Required; see site for eligibility", casper:"Not required",
+    prereq:"See UBC MD admissions site", seats:"328", note:"Four campuses (Vancouver, Victoria, Prince George, Kelowna). Earliest deadline: Sept 15. Northern/Rural pathway.",
+    url:"https://mdprogram.med.ubc.ca/admissions/" }
+];
+const MED_PROVS = ["All","ON","QC","BC","AB","MB","SK","NS","NL"];
+
+// Reliable classifiers from the verified text fields
+const needsMCAT   = s => /^required/i.test(s.mcat.trim());
+const needsCASPer = s => /^required/i.test(s.casper.trim());
+
+const medFilterEl = document.getElementById("medfilter");
+const medToggleEl = document.getElementById("medtoggles");
+const medGridEl = document.getElementById("medgrid");
+const medCountEl = document.getElementById("medcount");
+let medProv = "All";
+let noMcat = false, noCasper = false;
+
+MED_PROVS.forEach(pv => {
+  const b = document.createElement("button");
+  b.className = "chip";
+  b.setAttribute("aria-pressed", pv === "All" ? "true" : "false");
+  b.innerHTML = `${pv}<small>${pv==="All" ? "every school" : "province"}</small>`;
+  b.onclick = () => {
+    medProv = pv;
+    [...medFilterEl.children].forEach((c,i) => c.setAttribute("aria-pressed", MED_PROVS[i]===pv));
+    renderMed();
+  };
+  medFilterEl.appendChild(b);
+});
+
+// Requirement toggles
+[["nomcat","No MCAT needed","skips the MCAT"],["nocasper","No CASPer needed","skips CASPer"]].forEach(([key,label,sub]) => {
+  const b = document.createElement("button");
+  b.className = "chip";
+  b.setAttribute("aria-pressed","false");
+  b.innerHTML = `${label}<small>${sub}</small>`;
+  b.onclick = () => {
+    if(key==="nomcat") noMcat = !noMcat; else noCasper = !noCasper;
+    b.setAttribute("aria-pressed", (key==="nomcat"?noMcat:noCasper) ? "true":"false");
+    renderMed();
+  };
+  medToggleEl.appendChild(b);
+});
+
+/* ---------- Medicine course-prerequisite checker ---------- */
+const MED_COURSES = [
+  ["bio","Biology"],["genchem","General Chemistry"],["orgchem","Organic Chemistry"],
+  ["biochem","Biochemistry"],["physics","Physics"],["stats","Statistics"],
+  ["physiology","Physiology"],["humss","Humanities / Social Science"]
+];
+// Only schools with specific UNDERGRAD course prerequisites in the AFMC guide are listed.
+// Anything absent has no specific course prerequisites. Quebec French CEGEP schools are excluded
+// (their prereqs are CEGEP-level, not undergraduate courses).
+const MED_COURSE_REQS = {
+  "University of Ottawa": ["humss","bio","orgchem","genchem","biochem","stats"],
+  "McGill University (MD-CM)": ["bio","genchem","physics","orgchem"],
+  "University of Toronto (Temerty)": ["bio","humss"]
+};
+let medCourseSel = new Set();
+const medCoursesEl = document.getElementById("medcourses");
+const medCourseSummaryEl = document.getElementById("medcoursesummary");
+MED_COURSES.forEach(([key,label]) => {
+  const b = document.createElement("button");
+  b.className = "chip"; b.setAttribute("aria-pressed","false"); b.textContent = label;
+  b.onclick = () => {
+    if(medCourseSel.has(key)) medCourseSel.delete(key); else medCourseSel.add(key);
+    b.setAttribute("aria-pressed", medCourseSel.has(key) ? "true":"false");
+    renderMed();
+  };
+  medCoursesEl.appendChild(b);
+});
+function medCourseState(s){
+  const reqs = MED_COURSE_REQS[s.name];
+  if(!reqs || !reqs.length) return null;
+  if(medCourseSel.size === 0) return null;
+  const labelOf = k => (MED_COURSES.find(c => c[0]===k)||[null,k])[1];
+  const missing = reqs.filter(k => !medCourseSel.has(k));
+  return missing.length === 0
+    ? {cls:"open", text:"Course prerequisites met (GPA and MCAT still decide)"}
+    : {cls:"missing", text:"Still needs: " + missing.map(labelOf).join(", ")};
+}
+
+function renderMed(){
+  let list = medProv === "All" ? MED_SCHOOLS.slice() : MED_SCHOOLS.filter(s => s.prov === medProv);
+  if(noMcat)   list = list.filter(s => !needsMCAT(s));
+  if(noCasper) list = list.filter(s => !needsCASPer(s));
+  medCountEl.textContent = `${list.length} of ${MED_SCHOOLS.length} schools`;
+  // Course-checker summary
+  if(medCourseSel.size === 0){
+    medCourseSummaryEl.textContent = "";
+  } else {
+    const withReqs = MED_SCHOOLS.filter(s => (MED_COURSE_REQS[s.name]||[]).length);
+    const met = withReqs.filter(s => medCourseState(s) && medCourseState(s).cls==="open").length;
+    const noReq = MED_SCHOOLS.length - withReqs.length;
+    medCourseSummaryEl.textContent = `${noReq} schools have no course prerequisites. Of the ${withReqs.length} that do, your courses cover ${met}.`;
+  }
+  medGridEl.innerHTML = list.length ? list.map(s => {
+    const cs = medCourseState(s);
+    const hasReqs = (MED_COURSE_REQS[s.name]||[]).length > 0;
+    const badge = cs ? `<span class="status ${cs.cls}">${cs.text}</span>`
+      : (medCourseSel.size>0 && !hasReqs ? `<span class="status neutral">No specific course prerequisites</span>` : "");
+    return `
+    <article class="card">
+      <div class="uni-name">${s.region} · ${s.prov} · ${s.seats} seats</div>
+      <h3>${s.name}</h3>
+      ${badge}
+      <ul class="req">
+        <li><span class="mark">•</span><span><strong>Degree:</strong> ${s.degree}</span></li>
+        <li><span class="mark">•</span><span><strong>GPA:</strong> ${s.gpa}</span></li>
+        <li><span class="mark">•</span><span><strong>MCAT:</strong> ${s.mcat}</span></li>
+        <li><span class="mark">•</span><span><strong>CASPer:</strong> ${s.casper}</span></li>
+        <li><span class="mark">•</span><span><strong>Prerequisites:</strong> ${s.prereq}</span></li>
+      </ul>
+      <div class="note">${s.note}</div>
+      <div class="src">Official page: <a href="${s.url}" target="_blank" rel="noopener">visit</a> · AFMC 2026 · verified 2026-06-11</div>
+    </article>`;
+  }).join("") : `<p class="sub">No schools match those filters. Try removing one.</p>`;
+}
+renderMed();
+
+window.addEventListener("popstate", (event) => {
+  const screen = event.state && event.state.screen ? event.state.screen : "start";
+  renderScreen(screen);
+});
+
+const initialScreen = location.hash.replace("#", "") || "start";
+history.replaceState({screen: initialScreen}, "", "#" + initialScreen);
+renderScreen(initialScreen);
+</script>
+</body>
+</html>
