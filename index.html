@@ -21,6 +21,9 @@
   .wrap{max-width:860px;margin:0 auto;padding:0 22px}
 
   header{border-bottom:1px solid var(--ink);padding:30px 0 56px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .aboutlink{font-family:'Hanken Grotesk',sans-serif;font-weight:600;font-size:14.5px;letter-spacing:0;color:var(--ink);background:none;border:none;border-bottom:1.5px solid var(--ink);border-radius:0;padding:4px 2px;cursor:pointer;transition:color .15s, border-color .15s;white-space:nowrap}
+  .aboutlink:hover{color:var(--clay);border-color:var(--clay)}
   .brandrow{display:flex;align-items:center;gap:13px;cursor:pointer;width:max-content}
   .logo{width:44px;height:44px;flex:none}
   .brand{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(26px,4.6vw,40px);letter-spacing:-.8px;line-height:1}
@@ -129,17 +132,20 @@
 
 <header>
   <div class="wrap">
-    <div class="brandrow" onclick="go('start')">
-      <svg class="logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <polygon points="32,10 58,22 32,34 6,22" fill="#2A2622"/>
-        <path d="M20 28 v10 c0 4 5.5 7 12 7 s12-3 12-7 V28 L32 34 Z" fill="#EADFE6" stroke="#2A2622" stroke-width="2.5"/>
-        <line x1="58" y1="22" x2="58" y2="40" stroke="#2A2622" stroke-width="3" stroke-linecap="round"/>
-        <circle cx="58" cy="44" r="4" fill="#B5663F" stroke="#2A2622" stroke-width="2.5"/>
-        <circle cx="27" cy="21" r="1.8" fill="#6E4B63"/>
-        <circle cx="37" cy="21" r="1.8" fill="#6E4B63"/>
-        <path d="M27 25 q5 3.5 10 0" stroke="#6E4B63" stroke-width="2" fill="none" stroke-linecap="round"/>
-      </svg>
-      <div class="brand">Help Me <span class="uni">Pre Med</span></div>
+    <div class="topbar">
+      <div class="brandrow" onclick="go('start')">
+        <svg class="logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <polygon points="32,10 58,22 32,34 6,22" fill="#2A2622"/>
+          <path d="M20 28 v10 c0 4 5.5 7 12 7 s12-3 12-7 V28 L32 34 Z" fill="#EADFE6" stroke="#2A2622" stroke-width="2.5"/>
+          <line x1="58" y1="22" x2="58" y2="40" stroke="#2A2622" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="58" cy="44" r="4" fill="#B5663F" stroke="#2A2622" stroke-width="2.5"/>
+          <circle cx="27" cy="21" r="1.8" fill="#6E4B63"/>
+          <circle cx="37" cy="21" r="1.8" fill="#6E4B63"/>
+          <path d="M27 25 q5 3.5 10 0" stroke="#6E4B63" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="brand">Help Me <span class="uni">Pre Med</span></div>
+      </div>
+      <button class="aboutlink" onclick="go('about')">About the Founder</button>
     </div>
     <div class="crumbs" id="crumbs"></div>
   </div>
@@ -374,6 +380,25 @@
     <button class="back" onclick="go('ug')">← Back to university</button>
   </section>
 
+  <!-- ABOUT THE FOUNDER -->
+  <section class="screen" id="s-about">
+    <h1>About the Founder</h1>
+    <div class="panel">
+      <h3>Idana Vitale</h3>
+      <p class="note" style="font-size:16px;line-height:1.6">
+        Idana is a Health Sciences (BSc) &amp; Psychology (BA) Joint Honours student at the University of Waterloo.
+        She built Help Me Pre-Med after going through the university application process herself and finding that,
+        while the information she needed existed, it was scattered across dozens of different university pages, guides
+        and PDFs. Help Me Pre-Med collects it all in one place, so the next student doesn't have to start from zero.
+      </p>
+      <p class="note" style="margin-top:14px">
+        <a href="https://www.linkedin.com/in/idana-vitale-556b44389/" target="_blank" rel="noopener">LinkedIn</a>
+        · <a href="mailto:imvitale@uwaterloo.ca">imvitale@uwaterloo.ca</a>
+      </p>
+    </div>
+    <button class="back" onclick="go('start')">← Back to start</button>
+  </section>
+
 </main>
 
 <footer>
@@ -386,8 +411,8 @@
 
 <script>
 /* ---------- navigation ---------- */
-const TITLES = {start:"Start", hs:"High school", ug:"University", g9:"Grade 9", g10:"Grade 10", g11:"Grade 11", g12:"Grade 12", med:"Medical schools", field:"Programs", premed:"Undergrad majors", advisor:"Find Your Path Advisor", compare:"Compare 3 programs"};
-const PARENT  = {hs:"start", ug:"start", g9:"hs", g10:"hs", g11:"hs", g12:"hs", med:"ug", field:"ug", premed:"start", advisor:"start", compare:"start"};
+const TITLES = {start:"Start", hs:"High school", ug:"University", g9:"Grade 9", g10:"Grade 10", g11:"Grade 11", g12:"Grade 12", med:"Medical schools", field:"Programs", premed:"Undergrad majors", advisor:"Find Your Path Advisor", compare:"Compare 3 programs", about:"About the Founder"};
+const PARENT  = {hs:"start", ug:"start", g9:"hs", g10:"hs", g11:"hs", g12:"hs", med:"ug", field:"ug", premed:"start", advisor:"start", compare:"start", about:"start"};
 function go(id){
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById("s-"+id).classList.add("active");
